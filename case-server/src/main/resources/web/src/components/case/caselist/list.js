@@ -38,7 +38,7 @@ class Lists extends React.Component {
       iterationFilter: '', // 需求筛选最终选择
       createrFilter: '', // 创建人筛选最终选择
       nameFilter: '', // 用例名称筛选最终选择
-      xmindFile: null, // 保存上传的file文件，单文件    };
+      caseFile: null, // 保存上传的file文件，单文件    };
       checked: false,
       requirementIds: [],
       requirementObj: [],
@@ -68,6 +68,7 @@ class Lists extends React.Component {
           iterationFilter: this.props.iterationFilter,
           createrFilter: this.props.createrFilter,
           nameFilter: this.props.nameFilter,
+          caseKeyWords: this.props.caseKeyWords,
           expendKeys: [],
         });
       });
@@ -298,6 +299,7 @@ class Lists extends React.Component {
         createrFilter,
         iterationFilter,
         choiseDate,
+        caseKeyWords,
       } = this.state;
       this.props.getCaseList(
         this.state.current,
@@ -305,6 +307,7 @@ class Lists extends React.Component {
         createrFilter || '',
         iterationFilter || '',
         choiseDate || [],
+        caseKeyWords || '',
       );
     });
   };

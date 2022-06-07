@@ -5,10 +5,11 @@ import { Breadcrumb, Row, Button, Col, message, Tooltip } from 'antd';
 import './index.scss';
 import request from '@/utils/axios';
 import getQueryString from '@/utils/getCookies';
-const getCookies = getQueryString.getCookie;
 import moment from 'moment';
 import Link from 'umi/link';
-import AgileTCEditor from 'react-agiletc-editor';
+import AgileTCEditor from '../../react-mindmap-editor';
+
+const getCookies = getQueryString.getCookie;
 /* global staffNamePY */
 export default class CaseMgt extends React.Component {
   static propTypes = {
@@ -49,10 +50,12 @@ export default class CaseMgt extends React.Component {
   componentWillUnmount() {
     // 销毁拦截判断是否离开当前页面
     window.removeEventListener('beforeunload', this.handleAutoSave);
-    this.handleAutoSave();
+  //  this.handleAutoSave();
   }
   ///case/getRequirement
   handleAutoSave = () => {
+    // e.preventDefault();
+    // e.returnValue = '内容会被存储到浏览器缓存中！';
     const { iscore } = this.props.match.params;
     const minderData = this.editorNode
       ? this.editorNode.getAllData()
@@ -68,6 +71,7 @@ export default class CaseMgt extends React.Component {
         this.updateCase();
       }
     }
+
   };
   getRequirementsById = requirementIds => {
     // request(`${this.props.oeApiPrefix}/business-lines/requirements`, {
@@ -167,12 +171,15 @@ export default class CaseMgt extends React.Component {
     const { recordDetail, casedetail } = this.state;
     let readOnly = false;
     let progressShow = false;
+    let addFactor = false;
     if (iscore === '0' || iscore === '1') {
       readOnly = false;
       progressShow = false;
+      addFactor = true;
     } else {
       readOnly = true;
       progressShow = true;
+      addFactor = false;
     }
     return (
       <div style={{ position: 'relative', minHeight: '80vh' }}>
@@ -343,30 +350,11 @@ export default class CaseMgt extends React.Component {
             </Row>
           )) ||
             null}
-          <div
-            style={{
-              display: 'inline-block',
-              position: 'fixed',
-              bottom: '30px',
-              right: '20px',
-              zIndex: 999,
-            }}
-          >
-            {iscore != 2 && (
-              <Button type="primary" onClick={this.updateCase}>
-                保存
-              </Button>
-            )}
-            <span> &nbsp; &nbsp;</span>
-            {iscore == 3 && (
-              <Button type="primary" onClick={this.clearRecord}>
-                清除执行记录
-              </Button>
-            )}
-          </div>
+           
           <AgileTCEditor
             ref={editorNode => (this.editorNode = editorNode)}
             tags={['前置条件', '执行步骤', '预期结果']}
+            iscore={iscore}
             progressShow={progressShow}
             readOnly={readOnly}
             mediaShow={!progressShow}
@@ -376,10 +364,13 @@ export default class CaseMgt extends React.Component {
               theme: ['classic-compact', 'fresh-blue', 'fresh-green-compat'],
               template: ['default', 'right', 'fish-bone'],
               noteTemplate: '# test',
+              addFactor,
             }}
             baseUrl=""
             uploadUrl="/api/file/uploadAttachment"
-            wsUrl={`ws://${window.location.host}/api/case/${caseId}/${itemid}/${iscore}/${user}`}
+            wsUrl={`http://${window.location.hostname}:8095`}
+            wsParam = {{ transports:['websocket','xhr-polling','jsonp-polling'], query: { caseId: caseId, recordId: itemid, user: user }}}
+            // wsUrl={`ws://localhost:8094/api/case/${caseId}/${itemid}/${iscore}/${user}`}
             onSave={
               Number(iscore) !== 2
                 ? () => {
